@@ -1,0 +1,14 @@
+{
+  "name": "brainstem",
+  "version": "1.0.0",
+  "description": "Centralized GIF feed brainstem using Giphy",
+  "main": "brainstem.js",
+  "scripts": {
+    "start": "node brainstem.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "node-fetch": "^2.6.7"
+  }
+}
