@@ -54,3 +54,42 @@ app.get("/", (req, res) => {
   res.send("🧠 Brainstem online and twitching.");
 });
 
+const fs = require("fs");
+const Filter = require("bad-words");
+const filter = new Filter();
+
+const LOG_PATH = "./messages.json";
+
+// GET /api/log → return latest 50 messages
+app.get("/api/log", (req, res) => {
+  fs.readFile(LOG_PATH, (err, data) => {
+    if (err) return res.status(500).json({ error: "Logbook unavailable." });
+    const messages = JSON.parse(data || "[]").slice(-50).reverse();
+    res.json(messages);
+  });
+});
+
+// POST /api/log → submit a new message
+app.post("/api/log", express.json(), (req, res) => {
+  const message = req.body.message;
+  if (!message || typeof message !== "string" || message.length > 200) {
+    return res.status(400).json({ error: "Invalid message." });
+  }
+
+  const cleaned = filter.clean(message);
+
+  const entry = {
+    text: cleaned,
+    timestamp: new Date().toISOString(),
+    ip: req.ip
+  };
+
+  fs.readFile(LOG_PATH, (err, data) => {
+    const messages = err ? [] : JSON.parse(data || "[]");
+    messages.push(entry);
+    fs.writeFile(LOG_PATH, JSON.stringify(messages.slice(-100)), () => {
+      res.json({ success: true });
+    });
+  });
+});
+
