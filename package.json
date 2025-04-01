@@ -2,6 +2,7 @@
   "name": "brainstem",
   "version": "1.0.0",
   "description": "Centralized GIF feed brainstem using Giphy",
+  "type": "commonjs",
   "main": "brainstem.js",
   "scripts": {
     "start": "node brainstem.js"
