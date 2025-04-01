@@ -50,3 +50,7 @@ app.get("/api/gif-cache", (req, res) => {
 app.listen(PORT, () => {
   console.log("🧠 Brainstem online and broadcasting Giphy chaos.");
 });
+app.get("/", (req, res) => {
+  res.send("🧠 Brainstem online and twitching.");
+});
+
