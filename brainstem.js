@@ -48,5 +48,5 @@ app.get("/api/gif-cache", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🧠 Brainstem online at http://localhost:${PORT}`);
+  console.log("🧠 Brainstem online and broadcasting Giphy chaos.");
 });
