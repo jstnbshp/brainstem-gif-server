@@ -1,19 +1,29 @@
-
-// brainstem.js - Express server for centralizing Giphy API access
+// brainstem.js - Express server for centralizing Giphy API + Guestbook Log
 const express = require('express');
-const fetch = require('node-fetch');
 const cors = require('cors');
+const fs = require('fs');
+const Filter = require('bad-words');
 
 const app = express();
-app.use(cors());
-
 const PORT = process.env.PORT || 3000;
 const API_KEY = "9y2mJqxYAf6rYufW6hJpFXGA0QkwXe05";
 const CACHE_SIZE = 10;
 const GIF_REFRESH_INTERVAL = 60000; // 60 seconds per new GIF
+const LOG_PATH = "./messages.json";
+const filter = new Filter();
+
+app.use(cors());
+app.use(express.json()); // Needed for JSON POST parsing
 
 let gifCache = [];
 let lastFetch = 0;
+
+// 🌐 ROUTES
+
+// Root
+app.get("/", (req, res) => {
+  res.send("🧠 Brainstem online and twitching.");
+});
 
 // Fetch a new GIF from Giphy and add to cache
 async function fetchGif() {
@@ -34,7 +44,7 @@ async function fetchGif() {
 setInterval(fetchGif, GIF_REFRESH_INTERVAL);
 fetchGif(); // Initial boot fetch
 
-// Routes
+// GET one random GIF
 app.get("/api/random-gif", (req, res) => {
   if (gifCache.length === 0) {
     return res.status(503).json({ error: "No GIFs yet." });
@@ -43,22 +53,12 @@ app.get("/api/random-gif", (req, res) => {
   res.json({ url: gifCache[randomIndex] });
 });
 
+// GET all cached GIFs
 app.get("/api/gif-cache", (req, res) => {
   res.json({ gifs: gifCache });
 });
 
-app.listen(PORT, () => {
-  console.log("🧠 Brainstem online and broadcasting Giphy chaos.");
-});
-app.get("/", (req, res) => {
-  res.send("🧠 Brainstem online and twitching.");
-});
-
-const fs = require("fs");
-const Filter = require("bad-words");
-const filter = new Filter();
-
-const LOG_PATH = "./messages.json";
+// 📜 GUESTBOOK LOG ENDPOINTS
 
 // GET /api/log → return latest 50 messages
 app.get("/api/log", (req, res) => {
@@ -70,7 +70,7 @@ app.get("/api/log", (req, res) => {
 });
 
 // POST /api/log → submit a new message
-app.post("/api/log", express.json(), (req, res) => {
+app.post("/api/log", (req, res) => {
   const message = req.body.message;
   if (!message || typeof message !== "string" || message.length > 200) {
     return res.status(400).json({ error: "Invalid message." });
@@ -93,3 +93,7 @@ app.post("/api/log", express.json(), (req, res) => {
   });
 });
 
+// Boot server
+app.listen(PORT, () => {
+  console.log(`🧠 Brainstem online at http://localhost:${PORT}`);
+});
