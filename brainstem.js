@@ -2,7 +2,9 @@
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
-const Filter = require('bad-words');
+const leoProfanity = require("leo-profanity");
+leoProfanity.loadDictionary(); // Load default dictionary
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,7 +12,6 @@ const API_KEY = "9y2mJqxYAf6rYufW6hJpFXGA0QkwXe05";
 const CACHE_SIZE = 10;
 const GIF_REFRESH_INTERVAL = 60000; // 60 seconds per new GIF
 const LOG_PATH = "./messages.json";
-const filter = new Filter();
 
 app.use(cors());
 app.use(express.json()); // Needed for JSON POST parsing
@@ -76,7 +77,7 @@ app.post("/api/log", (req, res) => {
     return res.status(400).json({ error: "Invalid message." });
   }
 
-  const cleaned = filter.clean(message);
+  const cleaned = leoProfanity.clean(message);
 
   const entry = {
     text: cleaned,
